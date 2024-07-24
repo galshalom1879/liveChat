@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Block</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/highlight.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <h1 id="code-title"></h1>
+    <pre><code id="code-block" class="javascript"></code></pre>
+    <script>
+        const socket = io();
+        const urlParams = new URLSearchParams(window.location.search);
+        const codeIndex = urlParams.get('index');
+        const isMentor = sessionStorage.getItem('role') === 'mentor';
+        
+        fetch('/codeblocks')
+            .then(response => response.json())
+            .then(codeblocks => {
+                const codeblock = codeblocks[codeIndex];
+                document.getElementById('code-title').textContent = codeblock.title;
+                const codeElement = document.getElementById('code-block');
+                codeElement.textContent = codeblock.code;
+                hljs.highlightElement(codeElement);
+
+                if (!isMentor) {
+                    codeElement.contentEditable = 'true';
+                    codeElement.addEventListener('input', () => {
+                        const updatedCode = codeElement.textContent;
+                        socket.emit('codeUpdate', { codeIndex, updatedCode });
+                    });
+                }
+
+                socket.on('codeUpdate', data => {
+                    if (data.codeIndex === codeIndex) {
+                        codeElement.textContent = data.updatedCode;
+                        hljs.highlightElement(codeElement);
+                    }
+                });
+            });
+        
+        if (!isMentor) {
+            sessionStorage.setItem('role', 'student');
+        }
+    </script>
+</body>
+</html>

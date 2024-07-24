@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lobby</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Choose code block</h1>
+    <ul id="codeblocks-list"></ul>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const codeblocks = [
+                { title: 'Async case', code: 'async function fetchData() { /*...*/ }' },
+                { title: 'Promise example', code: 'let promise = new Promise((resolve, reject) => { /*...*/ });' },
+                { title: 'Callback hell', code: 'function callbackHell() { /*...*/ }' },
+                { title: 'Simple function', code: 'function add(a, b) { return a + b; }' }
+            ];
+            
+            const list = document.getElementById('codeblocks-list');
+            codeblocks.forEach((block, index) => {
+                const listItem = document.createElement('li');
+                listItem.textContent = block.title;
+                listItem.addEventListener('click', () => {
+                    window.location.href = `/codeblock.html?index=${index}`;
+                });
+                list.appendChild(listItem);
+            });
+        });
+    </script>
+</body>
+</html>
